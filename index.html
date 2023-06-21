@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Twitch Authorization</title>
+</head>
+
+<body>
+    <h1>Twitch Authorization</h1>
+    <a href="#" id="authorizeLink">Authorize Twitch</a>
+
+    <script>
+        function authorizeTwitch() {
+            const clientId = '7c7pij174rjagwdfmbdajvkb8422mn';
+            const redirectUri = 'http://localhost/';
+            const responseType = 'token';
+            const scope = 'user:read:email';
+
+            const url = `https://id.twitch.tv/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+
+            document.getElementById('authorizeLink').href = url;
+        }
+
+        function getUserInfo(accessToken) {
+            const apiUrl = 'https://api.twitch.tv/helix/users';
+
+            fetch(apiUrl, {
+                headers: {
+                    'Client-ID': '7c7pij174rjagwdfmbdajvkb8422mn',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const username = data.data[0].display_name;
+                    console.log('User Name:', username);
+                })
+                .catch(error => console.error(error));
+        }
+
+        // Extract the access token from the URL after the redirect
+        const urlParams = new URLSearchParams(window.location.hash.substr(1));
+        const accessToken = urlParams.get('access_token');
+
+        // If the access token exists, call the getUserInfo function
+        if (accessToken) {
+            getUserInfo(accessToken);
+        }
+    </script>
+
+    <script>
+        // Attach the authorizeTwitch function to the link's click event
+        document.getElementById('authorizeLink').addEventListener('click', authorizeTwitch);
+    </script>
+</body>
+
+</html>
